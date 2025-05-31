@@ -110,33 +110,35 @@ class PosterBoardManager {
         }
     }
     
-    static func applyTendie(_ url: URL, appHash: String) throws {
-        // scope the resource
-        let accessing = url.startAccessingSecurityScopedResource()
-        defer {
-            if accessing {
-                url.stopAccessingSecurityScopedResource()
-            }
-        }
-        
-        guard let descriptors = try getDescriptorsFromTendie(url) else { return } // TODO: Add error handling
-        // create the folder
-        for descr in try FileManager.default.contentsOfDirectory(at: descriptors, includingPropertiesForKeys: nil, options: .skipsHiddenFiles) {
-            if descr.lastPathComponent != "__MACOSX" {
-                try randomizeWallpaperId(url: descr)
-                let newURL = SymHandler.getDocumentsDirectory().appendingPathComponent(UUID().uuidString, conformingTo: .directory)
-                try FileManager.default.moveItem(at: descr, to: newURL)
-                
-                let _ = try SymHandler.createDescriptorsSymlink(appHash: appHash)
-                do {
-                    try FileManager.default.trashItem(at: newURL, resultingItemURL: nil)
-                } catch {
-                    print(error.localizedDescription)
+    static func applyTendies(_ urls: [URL], appHash: String) throws {
+        let _ = try SymHandler.createDescriptorsSymlink(appHash: appHash)
+        for url in urls {
+            // scope the resource
+            let accessing = url.startAccessingSecurityScopedResource()
+            defer {
+                if accessing {
+                    url.stopAccessingSecurityScopedResource()
                 }
-                SymHandler.cleanup()
             }
+            
+            guard let descriptors = try getDescriptorsFromTendie(url) else { return } // TODO: Add error handling
+            // create the folder
+            for descr in try FileManager.default.contentsOfDirectory(at: descriptors, includingPropertiesForKeys: nil, options: .skipsHiddenFiles) {
+                if descr.lastPathComponent != "__MACOSX" {
+                    try randomizeWallpaperId(url: descr)
+                    let newURL = SymHandler.getDocumentsDirectory().appendingPathComponent(UUID().uuidString, conformingTo: .directory)
+                    try FileManager.default.moveItem(at: descr, to: newURL)
+                    
+                    do {
+                        try FileManager.default.trashItem(at: newURL, resultingItemURL: nil)
+                    } catch {
+                        print(error.localizedDescription)
+                    }
+                }
+            }
+            
+            try? FileManager.default.removeItem(at: descriptors)
         }
-        
-        try? FileManager.default.removeItem(at: descriptors)
+        SymHandler.cleanup()
     }
 }
