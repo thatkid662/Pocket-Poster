@@ -7,6 +7,7 @@
 
 import Foundation
 import ZIPFoundation
+import UIKit
 
 class PosterBoardManager {
     private static func unzipFile(at url: URL) throws -> URL {
@@ -38,6 +39,12 @@ class PosterBoardManager {
         }
 
         return destinationURL
+    }
+    
+    static func runShortcut(named name: String) {
+        guard let urlEncodedName = name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+              let url = URL(string: "shortcuts://run-shortcut?name=\(name)") else { return }
+        UIApplication.shared.open(url, options: [:], completionHandler: nil)
     }
     
     static func getDescriptorsFromTendie(_ url: URL) throws -> URL? {

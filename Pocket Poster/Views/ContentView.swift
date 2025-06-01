@@ -60,7 +60,7 @@ struct ContentView: View {
                         Button(action: {
                             do {
                                 try PosterBoardManager.applyTendies(selectedTendies, appHash: pbHash)
-                                lastError = "Please open PosterBoard in the Shortcuts app and then close it from the app switcher."
+                                lastError = "The PosterBoard app will now open. Please close it from the app switcher."
                                 showSuccessAlert.toggle()
                             } catch {
                                 lastError = error.localizedDescription
@@ -91,7 +91,9 @@ struct ContentView: View {
             Text(lastError ?? "???")
         }
         .alert("Success!", isPresented: $showSuccessAlert) {
-            Button("OK") {}
+            Button("OK") {
+                PosterBoardManager.runShortcut(named: "PosterBoard") // shortcut url: https://www.icloud.com/shortcuts/9035ef1d51c247dba8c9861dc10b4aa7
+            }
         } message: {
             Text(lastError ?? "???")
         }
