@@ -10,6 +10,9 @@ import ZIPFoundation
 import UIKit
 
 class PosterBoardManager {
+    static let ShortcutURL = "https://www.icloud.com/shortcuts/9035ef1d51c247dba8c9861dc10b4aa7"
+    static let WallpapersURL = "https://cowabun.ga/wallpapers"
+    
     private static func unzipFile(at url: URL) throws -> URL {
         let fileName = url.deletingPathExtension().lastPathComponent
         let fileData = try Data(contentsOf: url)

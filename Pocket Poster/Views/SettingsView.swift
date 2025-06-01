@@ -58,6 +58,22 @@ struct SettingsView: View {
                 }
                 .buttonStyle(TintedButton(color: .red, fullwidth: true))
             }
+            
+            // MARK: Links
+            Section {
+                Link(destination: URL(string: PosterBoardManager.ShortcutURL)!) {
+                    Text("Download Shortcut")
+                }
+                .buttonStyle(TintedButton(color: .blue, fullwidth: true))
+                Link(destination: URL(string: PosterBoardManager.ShortcutURL)!) {
+                    Text("Find Wallpapers")
+                }
+                .buttonStyle(TintedButton(color: .blue, fullwidth: true))
+            } header: {
+                Text("Links")
+            }
+            
+            // TODO: Credits
         }
         .padding()
         .alert(errorAlertTitle ?? "Error", isPresented: $showErrorAlert) {

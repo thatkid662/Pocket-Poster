@@ -37,7 +37,7 @@ let onBoardingCards: [OnBoardingPage] = [
         title: "Install the Shortcut",
         description: "To apply, you will need a shortcut that opens PosterBoard.",
         image: "Shortcuts",
-        link: URL(string: "https://www.icloud.com/shortcuts/9035ef1d51c247dba8c9861dc10b4aa7"),
+        link: URL(string: PosterBoardManager.ShortcutURL),
         linkName: "Get Shortcut"
     ),
     .init(
@@ -51,7 +51,7 @@ let onBoardingCards: [OnBoardingPage] = [
         title: "Enjoy!",
         description: "You can find wallpapers on the official Cowabun.ga website.",
         image: "Cowabunga",
-        link: URL(string: "https://cowabun.ga/wallpapers"),
+        link: URL(string: PosterBoardManager.WallpapersURL),
         linkName: "Find Wallpapers"
     )
 ]
