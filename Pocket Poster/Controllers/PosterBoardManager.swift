@@ -119,6 +119,9 @@ class PosterBoardManager {
     
     static func applyTendies(_ urls: [URL], appHash: String) throws {
         let _ = try SymHandler.createDescriptorsSymlink(appHash: appHash)
+        defer {
+            SymHandler.cleanup()
+        }
         for url in urls {
             // scope the resource
             let accessing = url.startAccessingSecurityScopedResource()
@@ -146,6 +149,5 @@ class PosterBoardManager {
             
             try? FileManager.default.removeItem(at: descriptors)
         }
-        SymHandler.cleanup()
     }
 }
