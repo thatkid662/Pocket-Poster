@@ -9,9 +9,19 @@ import SwiftUI
 
 @main
 struct Pocket_PosterApp: App {
+    @AppStorage("finishedTutorial") var finishedTutorial: Bool = false
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            Group {
+                if finishedTutorial {
+                    ContentView()
+                } else {
+                    OnBoardingView()
+                }
+            }
+            .transition(.opacity)
+            .animation(.easeOut(duration: 0.5), value: finishedTutorial)
         }
     }
 }

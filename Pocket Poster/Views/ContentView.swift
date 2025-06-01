@@ -92,7 +92,7 @@ struct ContentView: View {
         }
         .alert("Success!", isPresented: $showSuccessAlert) {
             Button("OK") {
-                PosterBoardManager.runShortcut(named: "PosterBoard") // shortcut url: https://www.icloud.com/shortcuts/9035ef1d51c247dba8c9861dc10b4aa7
+                PosterBoardManager.runShortcut(named: "PosterBoard")
             }
         } message: {
             Text(lastError ?? "???")

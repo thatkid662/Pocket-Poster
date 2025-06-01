@@ -14,22 +14,9 @@
 		6F09B79D2DEB694B00CDE89C /* Pocket Poster.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Pocket Poster.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		6F09B7F72DEBBFEB00CDE89C /* Exceptions for "Pocket Poster" folder in "Pocket Poster" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"Pocket-Poster-Info.plist",
-			);
-			target = 6F09B79C2DEB694B00CDE89C /* Pocket Poster */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		6F09B79F2DEB694B00CDE89C /* Pocket Poster */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				6F09B7F72DEBBFEB00CDE89C /* Exceptions for "Pocket Poster" folder in "Pocket Poster" target */,
-			);
 			path = "Pocket Poster";
 			sourceTree = "<group>";
 		};
