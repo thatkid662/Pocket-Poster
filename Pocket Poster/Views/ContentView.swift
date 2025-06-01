@@ -36,15 +36,6 @@ struct ContentView: View {
                 }
                     .font(.caption)
                     .padding(.bottom, 10)
-                Section {
-                    HStack {
-                        Text("App Hash:")
-                            .bold()
-                        Spacer()
-                    }
-                    TextField("App Hash", text: $pbHash)
-                }
-                .padding(.bottom, 5)
                 
                 Section {
                     Button(action: {
@@ -70,26 +61,39 @@ struct ContentView: View {
                 }
                 
                 Section {
-                    if selectedTendies != nil && pbHash != "" {
-                        Button(action: {
-                            do {
-                                try PosterBoardManager.applyTendies(selectedTendies!, appHash: pbHash)
-                                selectedTendies = nil
-                                lastError = "The PosterBoard app will now open. Please close it from the app switcher."
-                                showSuccessAlert.toggle()
-                            } catch {
-                                lastError = error.localizedDescription
-                                showErrorAlert.toggle()
+                    if selectedTendies != nil {
+                        if pbHash == "" {
+                            Text("Enter your PosterBoard app hash in Settings.")
+                        } else {
+                            Button(action: {
+                                do {
+                                    try PosterBoardManager.applyTendies(selectedTendies!, appHash: pbHash)
+                                    selectedTendies = nil
+                                    lastError = "The PosterBoard app will now open. Please close it from the app switcher."
+                                    showSuccessAlert.toggle()
+                                } catch {
+                                    lastError = error.localizedDescription
+                                    showErrorAlert.toggle()
+                                }
+                            }) {
+                                Text("Apply")
                             }
-                        }) {
-                            Text("Apply")
+                            .buttonStyle(TintedButton(color: .blue, fullwidth: true))
                         }
-                        .buttonStyle(TintedButton(color: .blue, fullwidth: true))
                     }
                 }
             }
             .padding()
             .navigationTitle("Pocket Poster")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing, content: {
+                    NavigationLink(destination: {
+                        SettingsView()
+                    }, label: {
+                        Image(systemName: "gear")
+                    })
+                })
+            }
         }
         .fileImporter(isPresented: $showTendiesImporter, allowedContentTypes: [UTType(filenameExtension: "tendies", conformingTo: .data)!], allowsMultipleSelection: true, onCompletion: { result in
             switch result {
