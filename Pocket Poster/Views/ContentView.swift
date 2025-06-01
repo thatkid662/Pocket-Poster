@@ -70,10 +70,11 @@ struct ContentView: View {
                 }
                 
                 Section {
-                    if let selectedTendies = selectedTendies, pbHash != "" {
+                    if selectedTendies != nil && pbHash != "" {
                         Button(action: {
                             do {
-                                try PosterBoardManager.applyTendies(selectedTendies, appHash: pbHash)
+                                try PosterBoardManager.applyTendies(selectedTendies!, appHash: pbHash)
+                                selectedTendies = nil
                                 lastError = "The PosterBoard app will now open. Please close it from the app switcher."
                                 showSuccessAlert.toggle()
                             } catch {
