@@ -42,6 +42,7 @@ struct ContentView: View {
                 
                 Section {
                     Button(action: {
+                        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
                         showTendiesImporter.toggle()
                     }) {
                         Text("Select Tendies")
@@ -69,12 +70,20 @@ struct ContentView: View {
                             Text("Enter your PosterBoard app hash in Settings.")
                         } else {
                             Button(action: {
+                                UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                                UIApplication.shared.alert(title: NSLocalizedString("Applying Tendies...", comment: ""), body: NSLocalizedString("Please wait", comment: ""), animated: false, withButton: false)
+                                
                                 do {
                                     try PosterBoardManager.applyTendies(selectedTendies!, appHash: pbHash)
                                     selectedTendies = nil
+                                    Haptic.shared.notify(.success)
+                                    UIApplication.shared.dismissAlert(animated: true)
+                                    // TODO: Clear downloaded tendies
                                     lastError = "The PosterBoard app will now open. Please close it from the app switcher."
                                     showSuccessAlert.toggle()
                                 } catch {
+                                    Haptic.shared.notify(.error)
+                                    UIApplication.shared.dismissAlert(animated: true)
                                     lastError = error.localizedDescription
                                     showErrorAlert.toggle()
                                 }

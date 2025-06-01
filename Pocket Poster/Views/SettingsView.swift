@@ -32,6 +32,7 @@ struct SettingsView: View {
             
             Section {
                 Button(action: {
+                    UIImpactFeedbackGenerator(style: .soft).impactOccurred()
                     UserDefaults.standard.set(false, forKey: "finishedTutorial")
                 }) {
                     Text("Replay Tutorial")
@@ -39,12 +40,15 @@ struct SettingsView: View {
                 .buttonStyle(TintedButton(color: .blue, fullwidth: true))
                 
                 Button(action: {
+                    UIImpactFeedbackGenerator(style: .soft).impactOccurred()
                     do {
                         try PosterBoardManager.clearCache()
+                        Haptic.shared.notify(.success)
                         errorAlertTitle = "App Cache Successfully Cleared!"
                         errorAlertDescr = ""
                         showErrorAlert = true
                     } catch {
+                        Haptic.shared.notify(.error)
                         errorAlertTitle = "Error"
                         errorAlertDescr = error.localizedDescription
                         showErrorAlert = true
