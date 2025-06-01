@@ -24,7 +24,7 @@ struct SettingsView: View {
                         .foregroundColor(.primary)
                     Spacer()
                 }
-                TextField("App Hash", text: $pbHash)
+                TextField("Enter App Hash", text: $pbHash)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .font(.system(.body, design: .monospaced))
             }

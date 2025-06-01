@@ -27,6 +27,9 @@ struct ContentView: View {
     @State var showSuccessAlert = false
     @State var lastError: String?
     
+    @State var downloadURL: String? = nil
+    @State var showDownloadAlert = false
+    
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -120,8 +123,19 @@ struct ContentView: View {
         } message: {
             Text(lastError ?? "???")
         }
+        .alert("Download Tendies File", isPresented: $showDownloadAlert) {
+            Button("OK") {
+                downloadWallpaper()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Would you like to download the file \(downloadURL ?? "UNKNOWN")?")
+        }
         .onOpenURL(perform: { url in
-            if url.pathExtension == "tendies" {
+            if url.absoluteString.starts(with: "pocketposter://download") {
+                downloadURL = url.absoluteString.replacingOccurrences(of: "pocketposter://download?url=", with: "")
+            }
+            else if url.pathExtension == "tendies" {
                 if selectedTendies == nil {
                     selectedTendies = []
                 }
@@ -133,6 +147,27 @@ struct ContentView: View {
     func delete(at offsets: IndexSet) {
         if selectedTendies != nil {
             selectedTendies?.remove(atOffsets: offsets)
+        }
+    }
+    
+    func downloadWallpaper() {
+        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+        UIApplication.shared.alert(title: NSLocalizedString("Downloading", comment: "") + " \(DownloadManager.getWallpaperNameFromURL(string: downloadURL ?? "/Unknown"))...", body: NSLocalizedString("Please wait", comment: ""), animated: false, withButton: false)
+        
+        Task {
+            do {
+                let newURL = try await DownloadManager.downloadFromURL(string: downloadURL!)
+                if selectedTendies == nil {
+                    selectedTendies = []
+                }
+                selectedTendies?.append(newURL)
+                Haptic.shared.notify(.success)
+                UIApplication.shared.dismissAlert(animated: true)
+            } catch {
+                Haptic.shared.notify(.error)
+                UIApplication.shared.dismissAlert(animated: true)
+                UIApplication.shared.alert(title: NSLocalizedString("Could not download wallpaper!", comment: ""), body: error.localizedDescription)
+            }
         }
     }
     
