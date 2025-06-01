@@ -48,8 +48,9 @@ struct ContentView: View {
                         Text("Select Tendies")
                     }
                     .buttonStyle(TintedButton(color: .green, fullwidth: true))
+                    .padding(10)
                     
-                    if let selectedTendies = selectedTendies {
+                    if let selectedTendies = selectedTendies, !selectedTendies.isEmpty {
                         HStack {
                             Text("Selected Tendies")
                                 .font(.headline)
@@ -61,32 +62,35 @@ struct ContentView: View {
                             }
                             .onDelete(perform: delete)
                         }
+                        .frame(height: CGFloat((selectedTendies.count * 65) + (selectedTendies.count < 3 ? 100 : 0)), alignment: .top)
                     }
                 }
                 
                 Section {
-                    if selectedTendies != nil {
+                    if selectedTendies != nil && !selectedTendies!.isEmpty {
                         if pbHash == "" {
                             Text("Enter your PosterBoard app hash in Settings.")
                         } else {
                             Button(action: {
                                 UIImpactFeedbackGenerator(style: .soft).impactOccurred()
-                                UIApplication.shared.alert(title: NSLocalizedString("Applying Tendies...", comment: ""), body: NSLocalizedString("Please wait", comment: ""), animated: false, withButton: false)
+//                                UIApplication.shared.alert(title: NSLocalizedString("Applying Tendies...", comment: ""), body: NSLocalizedString("Please wait", comment: ""), animated: false, withButton: false)
                                 
-                                do {
-                                    try PosterBoardManager.applyTendies(selectedTendies!, appHash: pbHash)
-                                    selectedTendies = nil
-                                    Haptic.shared.notify(.success)
-                                    UIApplication.shared.dismissAlert(animated: true)
-                                    // TODO: Clear downloaded tendies
-                                    lastError = "The PosterBoard app will now open. Please close it from the app switcher."
-                                    showSuccessAlert.toggle()
-                                } catch {
-                                    Haptic.shared.notify(.error)
-                                    UIApplication.shared.dismissAlert(animated: true)
-                                    lastError = error.localizedDescription
-                                    showErrorAlert.toggle()
-                                }
+//                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    do {
+                                        try PosterBoardManager.applyTendies(selectedTendies!, appHash: pbHash)
+                                        selectedTendies = nil
+                                        Haptic.shared.notify(.success)
+//                                        UIApplication.shared.dismissAlert(animated: true)
+                                        // TODO: Clear downloaded tendies
+                                        lastError = "The PosterBoard app will now open. Please close it from the app switcher."
+                                        showSuccessAlert.toggle()
+                                    } catch {
+                                        Haptic.shared.notify(.error)
+//                                        UIApplication.shared.dismissAlert(animated: true)
+                                        lastError = error.localizedDescription
+                                        showErrorAlert.toggle()
+                                    }
+//                                }
                             }) {
                                 Text("Apply")
                             }
@@ -138,17 +142,19 @@ struct ContentView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("Would you like to download the file \(downloadURL ?? "UNKNOWN")?")
+            Text("Would you like to download the file \(DownloadManager.getWallpaperNameFromURL(string: downloadURL ?? "/Unknown"))?")
         }
         .onOpenURL(perform: { url in
             if url.absoluteString.starts(with: "pocketposter://download") {
                 downloadURL = url.absoluteString.replacingOccurrences(of: "pocketposter://download?url=", with: "")
+                showDownloadAlert = true
             }
             else if url.pathExtension == "tendies" {
                 if selectedTendies == nil {
-                    selectedTendies = []
+                    selectedTendies = [url]
+                } else {
+                    selectedTendies?.append(url)
                 }
-                selectedTendies?.append(url)
             }
         })
     }
@@ -167,9 +173,10 @@ struct ContentView: View {
             do {
                 let newURL = try await DownloadManager.downloadFromURL(string: downloadURL!)
                 if selectedTendies == nil {
-                    selectedTendies = []
+                    selectedTendies = [newURL]
+                } else {
+                    selectedTendies?.append(newURL)
                 }
-                selectedTendies?.append(newURL)
                 Haptic.shared.notify(.success)
                 UIApplication.shared.dismissAlert(animated: true)
             } catch {
