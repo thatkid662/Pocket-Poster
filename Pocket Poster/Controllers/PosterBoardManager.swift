@@ -150,4 +150,11 @@ class PosterBoardManager {
             try? FileManager.default.removeItem(at: descriptors)
         }
     }
+    
+    static func clearCache() throws {
+        let docDir = SymHandler.getDocumentsDirectory()
+        for file in try FileManager.default.contentsOfDirectory(at: docDir, includingPropertiesForKeys: nil) {
+            try FileManager.default.removeItem(at: file)
+        }
+    }
 }

@@ -11,6 +11,10 @@ struct SettingsView: View {
     // Prefs
     @AppStorage("pbHash") var pbHash: String = ""
     
+    @State var showErrorAlert = false
+    @State var errorAlertTitle: String?
+    @State var errorAlertDescr: String?
+    
     var body: some View {
         ScrollView {
             Section {
@@ -33,8 +37,29 @@ struct SettingsView: View {
                     Text("Replay Tutorial")
                 }
                 .buttonStyle(TintedButton(color: .blue, fullwidth: true))
+                
+                Button(action: {
+                    do {
+                        try PosterBoardManager.clearCache()
+                        errorAlertTitle = "App Cache Successfully Cleared!"
+                        errorAlertDescr = ""
+                        showErrorAlert = true
+                    } catch {
+                        errorAlertTitle = "Error"
+                        errorAlertDescr = error.localizedDescription
+                        showErrorAlert = true
+                    }
+                }) {
+                    Text("Clear App Cache")
+                }
+                .buttonStyle(TintedButton(color: .red, fullwidth: true))
             }
         }
         .padding()
+        .alert(errorAlertTitle ?? "Error", isPresented: $showErrorAlert) {
+            Button("OK") {}
+        } message: {
+            Text(errorAlertDescr ?? "???")
+        }
     }
 }
