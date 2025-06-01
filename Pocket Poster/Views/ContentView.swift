@@ -12,6 +12,8 @@ struct ContentView: View {
     // Prefs
     @AppStorage("pbHash") var pbHash: String = ""
     
+    private let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+    
     @State var showTendiesImporter: Bool = false
     @State var selectedTendies: [URL]? = nil
     
@@ -22,6 +24,8 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
+                Label("Version \(Bundle.main.releaseVersionNumber ?? "UNKNOWN") (\(Int(buildNumber) != 0 ? "\(buildNumber)" : NSLocalizedString("Release", comment:"")))", systemImage: "info.circle.fill")
+                    .font(.caption)
                 Section {
                     HStack {
                         Text("App Hash:")
