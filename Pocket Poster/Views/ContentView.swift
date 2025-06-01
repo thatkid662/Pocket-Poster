@@ -30,8 +30,12 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                Label("Version \(Bundle.main.releaseVersionNumber ?? "UNKNOWN") (\(Int(buildNumber) != 0 ? "\(buildNumber)" : NSLocalizedString("Release", comment:"")))", systemImage: "info.circle.fill")
+                HStack {
+                    Label("Version \(Bundle.main.releaseVersionNumber ?? "UNKNOWN") (\(Int(buildNumber) != 0 ? "Beta \(buildNumber)" : NSLocalizedString("Release", comment:"")))", systemImage: "info.circle.fill")
+                    Spacer()
+                }
                     .font(.caption)
+                    .padding(.bottom, 10)
                 Section {
                     HStack {
                         Text("App Hash:")
@@ -89,7 +93,11 @@ struct ContentView: View {
         .fileImporter(isPresented: $showTendiesImporter, allowedContentTypes: [UTType(filenameExtension: "tendies", conformingTo: .data)!], allowsMultipleSelection: true, onCompletion: { result in
             switch result {
             case .success(let url):
-                selectedTendies = url
+                if selectedTendies == nil {
+                    selectedTendies = url
+                } else {
+                    selectedTendies?.append(contentsOf: url)
+                }
             case .failure(let error):
                 lastError = error.localizedDescription
                 showErrorAlert.toggle()
@@ -107,6 +115,14 @@ struct ContentView: View {
         } message: {
             Text(lastError ?? "???")
         }
+        .onOpenURL(perform: { url in
+            if url.pathExtension == "tendies" {
+                if selectedTendies == nil {
+                    selectedTendies = []
+                }
+                selectedTendies?.append(url)
+            }
+        })
     }
     
     init() {
