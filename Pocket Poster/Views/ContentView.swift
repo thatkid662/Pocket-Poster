@@ -47,15 +47,15 @@ struct ContentView: View {
                     
                     if let selectedTendies = selectedTendies {
                         HStack {
-                            Text("Selected Tendies:")
-                                .bold()
+                            Text("Selected Tendies")
+                                .font(.headline)
                             Spacer()
                         }
-                        ForEach(selectedTendies, id: \.self) { tendie in
-                            HStack {
-                                Text("- \(tendie.deletingPathExtension().lastPathComponent)")
-                                Spacer()
+                        List {
+                            ForEach(selectedTendies, id: \.self) { tendie in
+                                Text(tendie.deletingPathExtension().lastPathComponent)
                             }
+                            .onDelete(perform: delete)
                         }
                     }
                 }
@@ -128,6 +128,12 @@ struct ContentView: View {
                 selectedTendies?.append(url)
             }
         })
+    }
+    
+    func delete(at offsets: IndexSet) {
+        if selectedTendies != nil {
+            selectedTendies?.remove(atOffsets: offsets)
+        }
     }
     
     init() {
