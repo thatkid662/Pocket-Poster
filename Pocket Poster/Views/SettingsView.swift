@@ -61,14 +61,24 @@ struct SettingsView: View {
             
             // MARK: Links
             Section {
-                Link(destination: URL(string: PosterBoardManager.ShortcutURL)!) {
-                    Text("Download Shortcut")
+                if let scURL = URL(string: PosterBoardManager.ShortcutURL) {
+                    Link(destination: scURL) {
+                        Text("Download Shortcut")
+                    }
+                    .buttonStyle(TintedButton(color: .blue, fullwidth: true))
                 }
-                .buttonStyle(TintedButton(color: .blue, fullwidth: true))
-                Link(destination: URL(string: PosterBoardManager.ShortcutURL)!) {
-                    Text("Find Wallpapers")
+                if let fbURL = URL(string: "shortcuts://run-shortcut?name=PosterBoard&input=text&text=troubleshoot") {
+                    Link(destination: fbURL) {
+                        Text("Create Fallback Method")
+                    }
+                    .buttonStyle(TintedButton(color: .blue, fullwidth: true))
                 }
-                .buttonStyle(TintedButton(color: .blue, fullwidth: true))
+                if let wpURL = URL(string: PosterBoardManager.WallpapersURL) {
+                    Link(destination: wpURL) {
+                        Text("Find Wallpapers")
+                    }
+                    .buttonStyle(TintedButton(color: .blue, fullwidth: true))
+                }
             } header: {
                 Text("Links")
             }
