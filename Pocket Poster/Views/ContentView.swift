@@ -145,9 +145,14 @@ struct ContentView: View {
             Text("Would you like to download the file \(DownloadManager.getWallpaperNameFromURL(string: downloadURL ?? "/Unknown"))?")
         }
         .onOpenURL(perform: { url in
+            // Download URL
             if url.absoluteString.starts(with: "pocketposter://download") {
                 downloadURL = url.absoluteString.replacingOccurrences(of: "pocketposter://download?url=", with: "")
                 showDownloadAlert = true
+            }
+            // App Hash URL
+            else if url.absoluteString.starts(with: "pocketposter://app-hash?uuid=") {
+                pbHash = url.absoluteString.replacingOccurrences(of: "pocketposter://app-hash?uuid=", with: "")
             }
             else if url.pathExtension == "tendies" {
                 if selectedTendies == nil {
