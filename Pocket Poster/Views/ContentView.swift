@@ -24,7 +24,6 @@ struct ContentView: View {
     var selectedTendies: Binding<[URL]>
     
     @State var showErrorAlert = false
-    @State var showSuccessAlert = false
     @State var lastError: String?
     @State var hideResetHelp: Bool = true
     
@@ -67,24 +66,24 @@ struct ContentView: View {
                             if !selectedTendies.wrappedValue.isEmpty {
                                 Button(action: {
                                     UIImpactFeedbackGenerator(style: .soft).impactOccurred()
-                                    //                                UIApplication.shared.alert(title: NSLocalizedString("Applying Tendies...", comment: ""), body: NSLocalizedString("Please wait", comment: ""), animated: false, withButton: false)
-                                    
-                                    //                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                    do {
-                                        try PosterBoardManager.applyTendies(selectedTendies.wrappedValue, appHash: pbHash)
-                                        selectedTendies.wrappedValue.removeAll()
-                                        try? FileManager.default.removeItem(at: PosterBoardManager.getTendiesStoreURL())
-                                        Haptic.shared.notify(.success)
-                                        //                                        UIApplication.shared.dismissAlert(animated: true)
-                                        lastError = "The PosterBoard app will now open. Please close it from the app switcher."
-                                        showSuccessAlert.toggle()
-                                    } catch {
-                                        Haptic.shared.notify(.error)
-                                        //                                        UIApplication.shared.dismissAlert(animated: true)
-                                        lastError = error.localizedDescription
-                                        showErrorAlert.toggle()
+                                    UIApplication.shared.alert(title: NSLocalizedString("Applying Tendies...", comment: ""), body: NSLocalizedString("Please wait", comment: ""), animated: false, withButton: false)
+
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                        do {
+                                            try PosterBoardManager.applyTendies(selectedTendies.wrappedValue, appHash: pbHash)
+                                            selectedTendies.wrappedValue.removeAll()
+                                            try? FileManager.default.removeItem(at: PosterBoardManager.getTendiesStoreURL())
+                                            Haptic.shared.notify(.success)
+                                            UIApplication.shared.dismissAlert(animated: false)
+                                            UIApplication.shared.confirmAlert(title: "Success!", body: "The PosterBoard app will now open. Please close it from the app switcher.", onOK: {
+                                                PosterBoardManager.runShortcut(named: "PosterBoard")
+                                            }, noCancel: true)
+                                        } catch {
+                                            Haptic.shared.notify(.error)
+                                            UIApplication.shared.dismissAlert(animated: false)
+                                            UIApplication.shared.alert(body: error.localizedDescription)
+                                        }
                                     }
-                                    //                                }
                                 }) {
                                     Text("Apply")
                                 }
@@ -133,13 +132,6 @@ struct ContentView: View {
         })
         .alert("Error", isPresented: $showErrorAlert) {
             Button("OK") {}
-        } message: {
-            Text(lastError ?? "???")
-        }
-        .alert("Success!", isPresented: $showSuccessAlert) {
-            Button("OK") {
-                PosterBoardManager.runShortcut(named: "PosterBoard")
-            }
         } message: {
             Text(lastError ?? "???")
         }
