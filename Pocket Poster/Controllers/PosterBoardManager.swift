@@ -153,11 +153,12 @@ class PosterBoardManager {
             extList.merge(descriptors) { (first, second) in first + second }
         }
         
+        defer {
+            SymHandler.cleanup()
+        }
+        
         for (ext, descriptorsList) in extList {
             let _ = try SymHandler.createDescriptorsSymlink(appHash: appHash, ext: ext)
-            defer {
-                SymHandler.cleanup()
-            }
             for descriptors in descriptorsList {
                 // create the folder
                 for descr in try FileManager.default.contentsOfDirectory(at: descriptors, includingPropertiesForKeys: nil, options: .skipsHiddenFiles) {
@@ -182,6 +183,7 @@ class PosterBoardManager {
     }
     
     static func clearCache() throws {
+        SymHandler.cleanup()
         let docDir = SymHandler.getDocumentsDirectory()
         for file in try FileManager.default.contentsOfDirectory(at: docDir, includingPropertiesForKeys: nil) {
             try FileManager.default.removeItem(at: file)
