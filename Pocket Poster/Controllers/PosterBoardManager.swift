@@ -146,7 +146,9 @@ class PosterBoardManager {
                 }
             }
             
+            // clean up the files
             try? FileManager.default.removeItem(at: unzippedDir)
+            try? FileManager.default.removeItem(at: SymHandler.getDocumentsDirectory().appendingPathComponent(url.lastPathComponent))
         }
     }
     
