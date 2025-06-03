@@ -106,6 +106,13 @@ struct ContentView: View {
             .padding()
             .navigationTitle("Pocket Poster")
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    if let wpURL = URL(string: PosterBoardManager.WallpapersURL) {
+                        Link(destination: wpURL) {
+                            Image(systemName: "safari")
+                        }
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing, content: {
                     NavigationLink(destination: {
                         SettingsView()

@@ -19,35 +19,35 @@ struct SettingsView: View {
     @State var errorAlertDescr: String?
     
     var body: some View {
-        ScrollView {
+        List {
             Section {
-                HStack {
-                    // Add button to run task to check until file exists from Nugget pc over AFC
-                    Text("App Hash:")
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                    Spacer()
-                    Button(action: {
-                        UIApplication.shared.confirmAlert(title: "Waiting for app hash...", body: "Connect your device to Nugget and click the \"Pocket Poster Helper\" button.", confirmTitle: "Cancel", onOK: {
-                            cancelWaitForHash()
-                        }, noCancel: true)
-                        startWaitForHash()
-                    }) {
-                        Text("Detect")
-                    }
-                    .buttonStyle(TintedButton(color: .green, fullwidth: false))
-                    .onChange(of: checkingForHash) {
-                        if !checkingForHash {
-                            // hide ui
-                            UIApplication.shared.dismissAlert(animated: true)
+                VStack {
+                    TextField("Enter App Hash", text: $pbHash)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .font(.system(.body, design: .monospaced))
+                    HStack {
+                        Spacer()
+                        // Run task to check until file exists from Nugget pc over AFC
+                        Button(action: {
+                            UIApplication.shared.confirmAlert(title: "Waiting for app hash...", body: "Connect your device to Nugget and click the \"Pocket Poster Helper\" button.", confirmTitle: "Cancel", onOK: {
+                                cancelWaitForHash()
+                            }, noCancel: true)
+                            startWaitForHash()
+                        }) {
+                            Text("Detect")
+                        }
+                        .foregroundStyle(.green)
+                        .onChange(of: checkingForHash) {
+                            if !checkingForHash {
+                                // hide ui alert
+                                UIApplication.shared.dismissAlert(animated: true)
+                            }
                         }
                     }
                 }
-                TextField("Enter App Hash", text: $pbHash)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .font(.system(.body, design: .monospaced))
+            } header: {
+                Label("App Hash", systemImage: "lock.app.dashed")
             }
-            .padding(.bottom, 5)
             
             Section {
                 Button(action: {
@@ -56,7 +56,6 @@ struct SettingsView: View {
                 }) {
                     Text("Replay Tutorial")
                 }
-                .buttonStyle(TintedButton(color: .blue, fullwidth: true))
                 
                 Button(action: {
                     UIImpactFeedbackGenerator(style: .soft).impactOccurred()
@@ -75,31 +74,30 @@ struct SettingsView: View {
                 }) {
                     Text("Clear App Cache")
                 }
-                .buttonStyle(TintedButton(color: .red, fullwidth: true))
+                .foregroundStyle(.red)
+            } header: {
+                Label("Actions", systemImage: "gear")
             }
             
             // MARK: Links
             Section {
                 if let scURL = URL(string: PosterBoardManager.ShortcutURL) {
                     Link(destination: scURL) {
-                        Text("Download Shortcut")
+                        Label("Download Shortcut", systemImage: "arrow.down.circle")
                     }
-                    .buttonStyle(TintedButton(color: .blue, fullwidth: true))
                 }
                 if let fbURL = URL(string: "shortcuts://run-shortcut?name=PosterBoard&input=text&text=troubleshoot") {
                     Link(destination: fbURL) {
-                        Text("Create Fallback Method")
+                        Label("Create Fallback Method", systemImage: "appclip")
                     }
-                    .buttonStyle(TintedButton(color: .blue, fullwidth: true))
                 }
                 if let wpURL = URL(string: PosterBoardManager.WallpapersURL) {
                     Link(destination: wpURL) {
-                        Text("Find Wallpapers")
+                        Label("Find Wallpapers", systemImage: "safari")
                     }
-                    .buttonStyle(TintedButton(color: .blue, fullwidth: true))
                 }
             } header: {
-                Text("Links")
+                Label("Links", systemImage: "link")
             }
             
             // TODO: Credits
