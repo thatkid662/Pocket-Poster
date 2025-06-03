@@ -28,8 +28,10 @@ class PosterBoardManager {
         let fileManager = FileManager()
 
         // Write the file to the Documents Directory
-        let docDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        let path = docDir[0]
+        let path = SymHandler.getDocumentsDirectory().appendingPathComponent("UnzipItems", conformingTo: .directory).appendingPathComponent(UUID().uuidString)
+        if !FileManager.default.fileExists(atPath: path.path()) {
+            try? FileManager.default.createDirectory(at: path, withIntermediateDirectories: true)
+        }
         let url = path.appending(path: fileName)
 
         // Remove All files in this directory
@@ -145,26 +147,17 @@ class PosterBoardManager {
     static func applyTendies(_ urls: [URL], appHash: String) throws {
         // organize the descriptors into their respective extensions
         var extList: [String: [URL]] = [:]
-        var unzippedDirs: [URL: URL] = [:]
         for url in urls {
             let unzippedDir = try unzipFile(at: url)
-            unzippedDirs[url] = unzippedDir
             guard let descriptors = try getDescriptorsFromTendie(unzippedDir) else { continue } // TODO: Add error handling
             extList.merge(descriptors) { (first, second) in first + second }
         }
         
-        defer {
-            SymHandler.cleanup()
-            for url in urls {
-                // clean up all possible files
-                if let unzippedDir = unzippedDirs[url] {
-                    try? FileManager.default.removeItem(at: unzippedDir)
-                }
-            }
-        }
-        
         for (ext, descriptorsList) in extList {
             let _ = try SymHandler.createDescriptorsSymlink(appHash: appHash, ext: ext)
+            defer {
+                SymHandler.cleanup()
+            }
             for descriptors in descriptorsList {
                 // create the folder
                 for descr in try FileManager.default.contentsOfDirectory(at: descriptors, includingPropertiesForKeys: nil, options: .skipsHiddenFiles) {
@@ -180,8 +173,9 @@ class PosterBoardManager {
             SymHandler.cleanup()
         }
         
-        // clean up
+        // clean up all possible files
         for url in urls {
+            try? FileManager.default.removeItem(at: SymHandler.getDocumentsDirectory().appendingPathComponent("UnzipItems", conformingTo: .directory))
             try? FileManager.default.removeItem(at: SymHandler.getDocumentsDirectory().appendingPathComponent(url.lastPathComponent))
             try? FileManager.default.removeItem(at: SymHandler.getDocumentsDirectory().appendingPathComponent(url.deletingPathExtension().lastPathComponent))
         }
