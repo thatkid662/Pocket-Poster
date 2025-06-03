@@ -59,13 +59,28 @@ class PosterBoardManager {
         UIApplication.shared.open(url, options: [:], completionHandler: nil)
     }
     
-    static func getDescriptorsFromTendie(_ url: URL) throws -> URL? {
+    static func getDescriptorsFromTendie(_ url: URL) throws -> [String: [URL]]? {
         for dir in try FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil, options: .skipsHiddenFiles) {
             let fileName = dir.lastPathComponent
-            if fileName.lowercased() == "descriptor" || fileName.lowercased() == "descriptors" {
-                return dir
+            if fileName.lowercased() == "container" {
+                // container support, find the extensions
+                let extDir = dir.appending(path: "Library/Application Support/PRBPosterExtensionDataStore/61/Extensions")
+                print(extDir.absoluteString)
+                var retList: [String: [URL]] = [:]
+                for ext in try FileManager.default.contentsOfDirectory(at: extDir, includingPropertiesForKeys: nil, options: .skipsHiddenFiles) {
+                    let descrDir = ext.appendingPathComponent("descriptors")
+                    retList[ext.lastPathComponent] = [descrDir]
+                }
+                return retList
+            }
+            else if fileName.lowercased() == "descriptor" || fileName.lowercased() == "descriptors" || fileName.lowercased() == "ordered-descriptor" || fileName.lowercased() == "ordered-descriptors" { // TODO: Add ordered descriptors
+                return ["com.apple.WallpaperKit.CollectionsPoster": [dir]]
+            }
+            else if fileName.lowercased() == "video-descriptor" || fileName.lowercased() == "video-descriptors" {
+                return ["com.apple.PhotosUIPrivate.PhotosPosterProvider": [dir]]
             }
         }
+        // TODO: Add error handling here
         return nil
     }
     
@@ -128,27 +143,47 @@ class PosterBoardManager {
     }
     
     static func applyTendies(_ urls: [URL], appHash: String) throws {
-        let _ = try SymHandler.createDescriptorsSymlink(appHash: appHash)
-        defer {
-            SymHandler.cleanup()
-        }
+        // organize the descriptors into their respective extensions
+        var extList: [String: [URL]] = [:]
+        var unzippedDirs: [URL: URL] = [:]
         for url in urls {
             let unzippedDir = try unzipFile(at: url)
+            unzippedDirs[url] = unzippedDir
             guard let descriptors = try getDescriptorsFromTendie(unzippedDir) else { continue } // TODO: Add error handling
-            // create the folder
-            for descr in try FileManager.default.contentsOfDirectory(at: descriptors, includingPropertiesForKeys: nil, options: .skipsHiddenFiles) {
-                if descr.lastPathComponent != "__MACOSX" {
-                    try randomizeWallpaperId(url: descr)
-                    let newURL = SymHandler.getDocumentsDirectory().appendingPathComponent(UUID().uuidString, conformingTo: .directory)
-                    try FileManager.default.moveItem(at: descr, to: newURL)
-                    
-                    try FileManager.default.trashItem(at: newURL, resultingItemURL: nil)
+            extList.merge(descriptors) { (first, second) in first + second }
+        }
+        
+        defer {
+            SymHandler.cleanup()
+            for url in urls {
+                // clean up all possible files
+                if let unzippedDir = unzippedDirs[url] {
+                    try? FileManager.default.removeItem(at: unzippedDir)
                 }
             }
-            
-            // clean up the files
-            try? FileManager.default.removeItem(at: unzippedDir)
+        }
+        
+        for (ext, descriptorsList) in extList {
+            let _ = try SymHandler.createDescriptorsSymlink(appHash: appHash, ext: ext)
+            for descriptors in descriptorsList {
+                // create the folder
+                for descr in try FileManager.default.contentsOfDirectory(at: descriptors, includingPropertiesForKeys: nil, options: .skipsHiddenFiles) {
+                    if descr.lastPathComponent != "__MACOSX" {
+                        try randomizeWallpaperId(url: descr)
+                        let newURL = SymHandler.getDocumentsDirectory().appendingPathComponent(UUID().uuidString, conformingTo: .directory)
+                        try FileManager.default.moveItem(at: descr, to: newURL)
+                        
+                        try FileManager.default.trashItem(at: newURL, resultingItemURL: nil)
+                    }
+                }
+            }
+            SymHandler.cleanup()
+        }
+        
+        // clean up
+        for url in urls {
             try? FileManager.default.removeItem(at: SymHandler.getDocumentsDirectory().appendingPathComponent(url.lastPathComponent))
+            try? FileManager.default.removeItem(at: SymHandler.getDocumentsDirectory().appendingPathComponent(url.deletingPathExtension().lastPathComponent))
         }
     }
     

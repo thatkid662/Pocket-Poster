@@ -35,9 +35,10 @@ class SymHandler {
         return try createSymlink(to: "/var/mobile/Containers/Data/Application/\(appHash)")
     }
     
-    static func createDescriptorsSymlink(appHash: String) throws -> URL {
+    static func createDescriptorsSymlink(appHash: String, ext: String) throws -> URL {
         // create a symlink directly to the descriptors
-        return try createAppSymlink(for: "\(appHash)/Library/Application Support/PRBPosterExtensionDataStore/61/Extensions/com.apple.WallpaperKit.CollectionsPoster/descriptors")
+        print("linking to \(appHash)/Library/Application Support/PRBPosterExtensionDataStore/61/Extensions/\(ext)/descriptors")
+        return try createAppSymlink(for: "\(appHash)/Library/Application Support/PRBPosterExtensionDataStore/61/Extensions/\(ext)/descriptors")
     }
     
     static func cleanup() {
