@@ -21,14 +21,11 @@ struct ContentView: View {
     private let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
     
     @State var showTendiesImporter: Bool = false
-    @State var selectedTendies: [URL]? = nil
+    var selectedTendies: Binding<[URL]?>
     
     @State var showErrorAlert = false
     @State var showSuccessAlert = false
     @State var lastError: String?
-    
-    @State var downloadURL: String? = nil
-    @State var showDownloadAlert = false
     
     var body: some View {
         NavigationStack {
@@ -50,7 +47,7 @@ struct ContentView: View {
                     .buttonStyle(TintedButton(color: .green, fullwidth: true))
                     .padding(10)
                     
-                    if let selectedTendies = selectedTendies, !selectedTendies.isEmpty {
+                    if let selectedTendies = selectedTendies.wrappedValue, !selectedTendies.isEmpty {
                         HStack {
                             Text("Selected Tendies")
                                 .font(.headline)
@@ -67,7 +64,7 @@ struct ContentView: View {
                 }
                 
                 Section {
-                    if selectedTendies != nil && !selectedTendies!.isEmpty {
+                    if selectedTendies.wrappedValue != nil && !selectedTendies.wrappedValue!.isEmpty {
                         if pbHash == "" {
                             Text("Enter your PosterBoard app hash in Settings.")
                         } else {
@@ -77,8 +74,9 @@ struct ContentView: View {
                                 
 //                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                                     do {
-                                        try PosterBoardManager.applyTendies(selectedTendies!, appHash: pbHash)
-                                        selectedTendies = nil
+                                        try PosterBoardManager.applyTendies(selectedTendies.wrappedValue!, appHash: pbHash)
+                                        selectedTendies.wrappedValue = nil
+                                        try? FileManager.default.removeItem(at: PosterBoardManager.getTendiesStoreURL())
                                         Haptic.shared.notify(.success)
 //                                        UIApplication.shared.dismissAlert(animated: true)
                                         // TODO: Clear downloaded tendies
@@ -114,10 +112,10 @@ struct ContentView: View {
         .fileImporter(isPresented: $showTendiesImporter, allowedContentTypes: [UTType(filenameExtension: "tendies", conformingTo: .data)!], allowsMultipleSelection: true, onCompletion: { result in
             switch result {
             case .success(let url):
-                if selectedTendies == nil {
-                    selectedTendies = url
+                if selectedTendies.wrappedValue == nil {
+                    selectedTendies.wrappedValue = url
                 } else {
-                    selectedTendies?.append(contentsOf: url)
+                    selectedTendies.wrappedValue?.append(contentsOf: url)
                 }
             case .failure(let error):
                 lastError = error.localizedDescription
@@ -136,70 +134,19 @@ struct ContentView: View {
         } message: {
             Text(lastError ?? "???")
         }
-        .alert("Download Tendies File", isPresented: $showDownloadAlert) {
-            Button("OK") {
-                downloadWallpaper()
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("Would you like to download the file \(DownloadManager.getWallpaperNameFromURL(string: downloadURL ?? "/Unknown"))?")
-        }
-        .onOpenURL(perform: { url in
-            // Download URL
-            if url.absoluteString.starts(with: "pocketposter://download") {
-                downloadURL = url.absoluteString.replacingOccurrences(of: "pocketposter://download?url=", with: "")
-                showDownloadAlert = true
-            }
-            // App Hash URL
-            else if url.absoluteString.starts(with: "pocketposter://app-hash?uuid=") {
-                pbHash = url.absoluteString.replacingOccurrences(of: "pocketposter://app-hash?uuid=", with: "")
-            }
-            else if url.pathExtension == "tendies" {
-                if selectedTendies == nil {
-                    selectedTendies = [url]
-                } else {
-                    selectedTendies?.append(url)
-                }
-            }
-        })
     }
     
     func delete(at offsets: IndexSet) {
-        if selectedTendies != nil {
-            selectedTendies?.remove(atOffsets: offsets)
+        if selectedTendies.wrappedValue != nil {
+            selectedTendies.wrappedValue?.remove(atOffsets: offsets)
         }
     }
     
-    func downloadWallpaper() {
-        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
-        UIApplication.shared.alert(title: NSLocalizedString("Downloading", comment: "") + " \(DownloadManager.getWallpaperNameFromURL(string: downloadURL ?? "/Unknown"))...", body: NSLocalizedString("Please wait", comment: ""), animated: false, withButton: false)
-        
-        Task {
-            do {
-                let newURL = try await DownloadManager.downloadFromURL(string: downloadURL!)
-                if selectedTendies == nil {
-                    selectedTendies = [newURL]
-                } else {
-                    selectedTendies?.append(newURL)
-                }
-                Haptic.shared.notify(.success)
-                UIApplication.shared.dismissAlert(animated: true)
-            } catch {
-                Haptic.shared.notify(.error)
-                UIApplication.shared.dismissAlert(animated: true)
-                UIApplication.shared.alert(title: NSLocalizedString("Could not download wallpaper!", comment: ""), body: error.localizedDescription)
-            }
-        }
-    }
-    
-    init() {
+    init(selectedTendies: Binding<[URL]?>) {
+        self.selectedTendies = selectedTendies
         // Fix file picker
         let fixMethod = class_getInstanceMethod(UIDocumentPickerViewController.self, #selector(UIDocumentPickerViewController.fix_init(forOpeningContentTypes:asCopy:)))!
         let origMethod = class_getInstanceMethod(UIDocumentPickerViewController.self, #selector(UIDocumentPickerViewController.init(forOpeningContentTypes:asCopy:)))!
         method_exchangeImplementations(origMethod, fixMethod)
     }
-}
-
-#Preview {
-    ContentView()
 }

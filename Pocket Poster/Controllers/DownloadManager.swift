@@ -19,7 +19,7 @@ class DownloadManager {
             
         let (data, response) = try await URLSession.shared.data(for: request) as! (Data, HTTPURLResponse)
         guard response.statusCode == 200 else { throw URLError(.cannotConnectToHost) }
-        let newURL = SymHandler.getDocumentsDirectory().appendingPathComponent(getWallpaperNameFromURL(string: url.absoluteString))
+        let newURL = PosterBoardManager.getTendiesStoreURL().appendingPathComponent(getWallpaperNameFromURL(string: url.absoluteString))
         try data.write(to: newURL)
         return newURL
     }
@@ -27,5 +27,18 @@ class DownloadManager {
     static func downloadFromURL(string path: String) async throws -> URL {
         guard let url = URL(string: path) else { throw URLError(.unknown) }
         return try await downloadFromURL(url)
+    }
+    
+    static func copyTendies(from url: URL) throws -> URL {
+        // scope the resource
+        let accessing = url.startAccessingSecurityScopedResource()
+        defer {
+            if accessing {
+                url.stopAccessingSecurityScopedResource()
+            }
+        }
+        let newURL = PosterBoardManager.getTendiesStoreURL().appendingPathComponent(url.lastPathComponent)
+        try FileManager.default.copyItem(at: url, to: newURL)
+        return newURL
     }
 }

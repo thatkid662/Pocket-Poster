@@ -13,6 +13,15 @@ class PosterBoardManager {
     static let ShortcutURL = "https://www.icloud.com/shortcuts/a28d2c02ca11453cb5b8f91c12cfa692"
     static let WallpapersURL = "https://cowabun.ga/wallpapers"
     
+    static func getTendiesStoreURL() -> URL {
+        let tendiesStoreURL = SymHandler.getDocumentsDirectory().appendingPathComponent("KFC Bucket", conformingTo: .directory)
+        // create it if it doesn't exist
+        if !FileManager.default.fileExists(atPath: tendiesStoreURL.path()) {
+            try? FileManager.default.createDirectory(at: tendiesStoreURL, withIntermediateDirectories: true)
+        }
+        return tendiesStoreURL
+    }
+    
     private static func unzipFile(at url: URL) throws -> URL {
         let fileName = url.deletingPathExtension().lastPathComponent
         let fileData = try Data(contentsOf: url)
@@ -51,9 +60,7 @@ class PosterBoardManager {
     }
     
     static func getDescriptorsFromTendie(_ url: URL) throws -> URL? {
-        let unzippedDir = try unzipFile(at: url)
-        
-        for dir in try FileManager.default.contentsOfDirectory(at: unzippedDir, includingPropertiesForKeys: nil, options: .skipsHiddenFiles) {
+        for dir in try FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil, options: .skipsHiddenFiles) {
             let fileName = dir.lastPathComponent
             if fileName.lowercased() == "descriptor" || fileName.lowercased() == "descriptors" {
                 return dir
@@ -126,15 +133,8 @@ class PosterBoardManager {
             SymHandler.cleanup()
         }
         for url in urls {
-            // scope the resource
-            let accessing = url.startAccessingSecurityScopedResource()
-            defer {
-                if accessing {
-                    url.stopAccessingSecurityScopedResource()
-                }
-            }
-            
-            guard let descriptors = try getDescriptorsFromTendie(url) else { return } // TODO: Add error handling
+            let unzippedDir = try unzipFile(at: url)
+            guard let descriptors = try getDescriptorsFromTendie(unzippedDir) else { continue } // TODO: Add error handling
             // create the folder
             for descr in try FileManager.default.contentsOfDirectory(at: descriptors, includingPropertiesForKeys: nil, options: .skipsHiddenFiles) {
                 if descr.lastPathComponent != "__MACOSX" {
@@ -142,15 +142,11 @@ class PosterBoardManager {
                     let newURL = SymHandler.getDocumentsDirectory().appendingPathComponent(UUID().uuidString, conformingTo: .directory)
                     try FileManager.default.moveItem(at: descr, to: newURL)
                     
-                    do {
-                        try FileManager.default.trashItem(at: newURL, resultingItemURL: nil)
-                    } catch {
-                        print(error.localizedDescription)
-                    }
+                    try FileManager.default.trashItem(at: newURL, resultingItemURL: nil)
                 }
             }
             
-            try? FileManager.default.removeItem(at: descriptors)
+            try? FileManager.default.removeItem(at: unzippedDir)
         }
     }
     
