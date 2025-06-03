@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "pocketposter-2.png",
+      "filename" : "pocket_poster.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -13,7 +13,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "pocketposter-transparent.png",
+      "filename" : "pocket_poster_transparent.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -25,7 +25,7 @@
           "value" : "tinted"
         }
       ],
-      "filename" : "pocketposter-transparent 1.png",
+      "filename" : "pocket_poster_transparent 1.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
