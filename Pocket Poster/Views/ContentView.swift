@@ -26,6 +26,7 @@ struct ContentView: View {
     @State var showErrorAlert = false
     @State var showSuccessAlert = false
     @State var lastError: String?
+    @State var hideResetHelp: Bool = true
     
     var body: some View {
         NavigationStack {
@@ -45,7 +46,7 @@ struct ContentView: View {
                         Text("Select Tendies")
                     }
                     .buttonStyle(TintedButton(color: .green, fullwidth: true))
-                    .padding(10)
+                    .padding(.vertical, 10)
                     
                     if !selectedTendies.wrappedValue.isEmpty {
                         HStack {
@@ -64,36 +65,41 @@ struct ContentView: View {
                 }
                 
                 Section {
-                    if !selectedTendies.wrappedValue.isEmpty {
-                        if pbHash == "" {
-                            Text("Enter your PosterBoard app hash in Settings.")
-                        } else {
+                    if pbHash == "" {
+                        Text("Enter your PosterBoard app hash in Settings.")
+                    } else {
+                        if !selectedTendies.wrappedValue.isEmpty {
                             Button(action: {
                                 UIImpactFeedbackGenerator(style: .soft).impactOccurred()
-//                                UIApplication.shared.alert(title: NSLocalizedString("Applying Tendies...", comment: ""), body: NSLocalizedString("Please wait", comment: ""), animated: false, withButton: false)
+                                //                                UIApplication.shared.alert(title: NSLocalizedString("Applying Tendies...", comment: ""), body: NSLocalizedString("Please wait", comment: ""), animated: false, withButton: false)
                                 
-//                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                    do {
-                                        try PosterBoardManager.applyTendies(selectedTendies.wrappedValue, appHash: pbHash)
-                                        selectedTendies.wrappedValue.removeAll()
-                                        try? FileManager.default.removeItem(at: PosterBoardManager.getTendiesStoreURL())
-                                        Haptic.shared.notify(.success)
-//                                        UIApplication.shared.dismissAlert(animated: true)
-                                        // TODO: Clear downloaded tendies
-                                        lastError = "The PosterBoard app will now open. Please close it from the app switcher."
-                                        showSuccessAlert.toggle()
-                                    } catch {
-                                        Haptic.shared.notify(.error)
-//                                        UIApplication.shared.dismissAlert(animated: true)
-                                        lastError = error.localizedDescription
-                                        showErrorAlert.toggle()
-                                    }
-//                                }
+                                //                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                do {
+                                    try PosterBoardManager.applyTendies(selectedTendies.wrappedValue, appHash: pbHash)
+                                    selectedTendies.wrappedValue.removeAll()
+                                    try? FileManager.default.removeItem(at: PosterBoardManager.getTendiesStoreURL())
+                                    Haptic.shared.notify(.success)
+                                    //                                        UIApplication.shared.dismissAlert(animated: true)
+                                    lastError = "The PosterBoard app will now open. Please close it from the app switcher."
+                                    showSuccessAlert.toggle()
+                                } catch {
+                                    Haptic.shared.notify(.error)
+                                    //                                        UIApplication.shared.dismissAlert(animated: true)
+                                    lastError = error.localizedDescription
+                                    showErrorAlert.toggle()
+                                }
+                                //                                }
                             }) {
                                 Text("Apply")
                             }
                             .buttonStyle(TintedButton(color: .blue, fullwidth: true))
                         }
+                        Button(action: {
+                            hideResetHelp = false
+                        }) {
+                            Text("Reset Collections")
+                        }
+                        .buttonStyle(TintedButton(color: .red, fullwidth: true))
                     }
                 }
             }
@@ -129,6 +135,12 @@ struct ContentView: View {
             }
         } message: {
             Text(lastError ?? "???")
+        }
+        .overlay {
+            OnBoardingView(cards: resetCollectionsInfo, isFinished: $hideResetHelp)
+                .opacity(hideResetHelp ? 0.0 : 1.0)
+                .transition(.opacity)
+                .animation(.easeOut(duration: 0.5), value: hideResetHelp)
         }
     }
     

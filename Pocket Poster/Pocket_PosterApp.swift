@@ -24,7 +24,7 @@ struct Pocket_PosterApp: App {
                 if finishedTutorial {
                     ContentView(selectedTendies: $selectedTendies)
                 } else {
-                    OnBoardingView()
+                    OnBoardingView(cards: onBoardingCards, isFinished: $finishedTutorial)
                 }
             }
             .transition(.opacity)

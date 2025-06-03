@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct OnBoardingCardButtons: View {
-    @AppStorage("finishedTutorial") var finishedTutorial: Bool?
+    @Binding var isFinished: Bool
     
     @Binding var idx: Int
     @Binding var isAnimating: Bool
@@ -74,7 +74,7 @@ struct OnBoardingCardButtons: View {
     func playFinishAnimation() {
         isAnimating = false
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
-            finishedTutorial = true
+            isFinished = true
         })
     }
 }
@@ -83,6 +83,7 @@ struct OnBoardingCardView: View {
     var info: OnBoardingPage
     var pageCount: Int
     @Binding var idx: Int
+    @Binding var isFinished: Bool
     
     @State private var isAnimating: Bool = false
     @State private var imgCornerRadius: CGFloat = 10.0
@@ -130,7 +131,7 @@ struct OnBoardingCardView: View {
                 .accentColor(Color.white)
             }
             
-            OnBoardingCardButtons(idx: $idx, isAnimating: $isAnimating, showDismiss: idx == 0, showFinish: idx == pageCount-1)
+            OnBoardingCardButtons(isFinished: $isFinished, idx: $idx, isAnimating: $isAnimating, showDismiss: idx == 0, showFinish: idx == pageCount-1)
         }
         .opacity(isAnimating ? 1.0 : 0.0)
         .animation(.easeOut(duration: 0.5), value: isAnimating)

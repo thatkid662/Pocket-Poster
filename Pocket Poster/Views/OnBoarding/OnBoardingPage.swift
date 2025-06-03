@@ -55,3 +55,26 @@ let onBoardingCards: [OnBoardingPage] = [
         linkName: "Find Wallpapers"
     )
 ]
+
+let resetCollectionsInfo: [OnBoardingPage] = [
+    .init(
+        title: "How to Reset Collections",
+        description: "Due to the way this exploit works, it cannot delete files.\n\nHere is a guide on how to do it manually.",
+        image: "CustomCollection"
+    ),
+    .init(
+        title: "Open the Language Settings",
+        description: "Inside the Settings app, navigate to General > Language & Region",
+        image: "Language"
+    ),
+    .init(
+        title: "Set the Primary Language",
+        description: "It doesn't matter what you set it to.\n\nAfterwards set it back to your native language.",
+        image: "SetPrimary"
+    ),
+    .init(
+        title: "Verify That It Worked",
+        description: "Everything on PosterBoard should refresh. Check the Collections to see if they reset.",
+        image: "OriginalCollection"
+    )
+]
