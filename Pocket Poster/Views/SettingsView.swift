@@ -83,12 +83,12 @@ struct SettingsView: View {
             Section {
                 if let scURL = URL(string: PosterBoardManager.ShortcutURL) {
                     Link(destination: scURL) {
-                        Label("Download Shortcut", systemImage: "arrow.down.circle")
+                        Label("Download Fallback Shortcut", systemImage: "arrow.down.circle")
                     }
                 }
                 if let fbURL = URL(string: "shortcuts://run-shortcut?name=PosterBoard&input=text&text=troubleshoot") {
                     Link(destination: fbURL) {
-                        Label("Create Fallback Method", systemImage: "appclip")
+                        Label("Create Additional Fallback Method", systemImage: "appclip")
                     }
                 }
                 if let wpURL = URL(string: PosterBoardManager.WallpapersURL) {

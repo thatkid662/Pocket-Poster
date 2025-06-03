@@ -34,8 +34,8 @@ let onBoardingCards: [OnBoardingPage] = [
         image: "Logo"
     ),
     .init(
-        title: "Install the Shortcut",
-        description: "To apply, you will need a shortcut that opens PosterBoard.",
+        title: "Install the Fallback Shortcut (Optional)",
+        description: "To apply, PosterBoard will need to open.\n\nYou can install an optional shortcut if the original method fails.",
         image: "Shortcuts",
         link: URL(string: PosterBoardManager.ShortcutURL),
         linkName: "Get Shortcut"

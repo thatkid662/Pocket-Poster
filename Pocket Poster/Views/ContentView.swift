@@ -76,7 +76,11 @@ struct ContentView: View {
                                             Haptic.shared.notify(.success)
                                             UIApplication.shared.dismissAlert(animated: false)
                                             UIApplication.shared.confirmAlert(title: "Success!", body: "The PosterBoard app will now open. Please close it from the app switcher.", onOK: {
-                                                PosterBoardManager.runShortcut(named: "PosterBoard")
+                                                if !PosterBoardManager.openPosterBoard() {
+                                                    UIApplication.shared.confirmAlert(title: "Falling Back to Shortcut", body: "PosterBoard failed to open directly. The fallback shortcut will now be opened.", onOK: {
+                                                        PosterBoardManager.runShortcut(named: "PosterBoard")
+                                                    }, noCancel: true)
+                                                }
                                             }, noCancel: true)
                                         } catch {
                                             Haptic.shared.notify(.error)

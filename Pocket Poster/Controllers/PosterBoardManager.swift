@@ -22,6 +22,17 @@ class PosterBoardManager {
         return tendiesStoreURL
     }
     
+    static func openPosterBoard() -> Bool {
+        guard let obj = objc_getClass("LSApplicationWorkspace") as? NSObject else { return false }
+        let workspace = obj.perform(Selector(("defaultWorkspace")))?.takeUnretainedValue() as? NSObject
+        
+        if let success = workspace?.perform(Selector(("openApplicationWithBundleID:")), with: "com.apple.PosterBoard") {
+            return success != nil
+        }
+        
+        return false
+    }
+    
     private static func unzipFile(at url: URL) throws -> URL {
         let fileName = url.deletingPathExtension().lastPathComponent
         let fileData = try Data(contentsOf: url)
