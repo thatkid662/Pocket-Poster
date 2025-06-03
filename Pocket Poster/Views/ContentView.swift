@@ -30,13 +30,11 @@ struct ContentView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                HStack {
+            List {
+                Section {} header: {
                     Label("Version \(Bundle.main.releaseVersionNumber ?? "UNKNOWN") (\(Int(buildNumber) != 0 ? "Beta \(buildNumber)" : NSLocalizedString("Release", comment:"")))", systemImage: "info.circle.fill")
-                    Spacer()
+                        .font(.caption)
                 }
-                    .font(.caption)
-                    .padding(.bottom, 10)
                 
                 Section {
                     Button(action: {
@@ -46,21 +44,18 @@ struct ContentView: View {
                         Text("Select Tendies")
                     }
                     .buttonStyle(TintedButton(color: .green, fullwidth: true))
-                    .padding(.vertical, 10)
-                    
-                    if !selectedTendies.wrappedValue.isEmpty {
-                        HStack {
-                            Text("Selected Tendies")
-                                .font(.headline)
-                            Spacer()
+                }
+                .listRowInsets(EdgeInsets())
+                .padding(7)
+                
+                if !selectedTendies.wrappedValue.isEmpty {
+                    Section {
+                        ForEach(selectedTendies.wrappedValue, id: \.self) { tendie in
+                            Text(tendie.deletingPathExtension().lastPathComponent)
                         }
-                        List {
-                            ForEach(selectedTendies.wrappedValue, id: \.self) { tendie in
-                                Text(tendie.deletingPathExtension().lastPathComponent)
-                            }
-                            .onDelete(perform: delete)
-                        }
-                        .frame(height: CGFloat((selectedTendies.wrappedValue.count * 65) + (selectedTendies.wrappedValue.count < 3 ? 100 : 0)), alignment: .top)
+                        .onDelete(perform: delete)
+                    } header: {
+                        Label("Selected Tendies", systemImage: "document")
                     }
                 }
                 
@@ -68,42 +63,47 @@ struct ContentView: View {
                     if pbHash == "" {
                         Text("Enter your PosterBoard app hash in Settings.")
                     } else {
-                        if !selectedTendies.wrappedValue.isEmpty {
-                            Button(action: {
-                                UIImpactFeedbackGenerator(style: .soft).impactOccurred()
-                                //                                UIApplication.shared.alert(title: NSLocalizedString("Applying Tendies...", comment: ""), body: NSLocalizedString("Please wait", comment: ""), animated: false, withButton: false)
-                                
-                                //                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                do {
-                                    try PosterBoardManager.applyTendies(selectedTendies.wrappedValue, appHash: pbHash)
-                                    selectedTendies.wrappedValue.removeAll()
-                                    try? FileManager.default.removeItem(at: PosterBoardManager.getTendiesStoreURL())
-                                    Haptic.shared.notify(.success)
-                                    //                                        UIApplication.shared.dismissAlert(animated: true)
-                                    lastError = "The PosterBoard app will now open. Please close it from the app switcher."
-                                    showSuccessAlert.toggle()
-                                } catch {
-                                    Haptic.shared.notify(.error)
-                                    //                                        UIApplication.shared.dismissAlert(animated: true)
-                                    lastError = error.localizedDescription
-                                    showErrorAlert.toggle()
+                        VStack {
+                            if !selectedTendies.wrappedValue.isEmpty {
+                                Button(action: {
+                                    UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                                    //                                UIApplication.shared.alert(title: NSLocalizedString("Applying Tendies...", comment: ""), body: NSLocalizedString("Please wait", comment: ""), animated: false, withButton: false)
+                                    
+                                    //                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    do {
+                                        try PosterBoardManager.applyTendies(selectedTendies.wrappedValue, appHash: pbHash)
+                                        selectedTendies.wrappedValue.removeAll()
+                                        try? FileManager.default.removeItem(at: PosterBoardManager.getTendiesStoreURL())
+                                        Haptic.shared.notify(.success)
+                                        //                                        UIApplication.shared.dismissAlert(animated: true)
+                                        lastError = "The PosterBoard app will now open. Please close it from the app switcher."
+                                        showSuccessAlert.toggle()
+                                    } catch {
+                                        Haptic.shared.notify(.error)
+                                        //                                        UIApplication.shared.dismissAlert(animated: true)
+                                        lastError = error.localizedDescription
+                                        showErrorAlert.toggle()
+                                    }
+                                    //                                }
+                                }) {
+                                    Text("Apply")
                                 }
-                                //                                }
-                            }) {
-                                Text("Apply")
+                                .buttonStyle(TintedButton(color: .blue, fullwidth: true))
                             }
-                            .buttonStyle(TintedButton(color: .blue, fullwidth: true))
+                            Button(action: {
+                                hideResetHelp = false
+                            }) {
+                                Text("Reset Collections")
+                            }
+                            .buttonStyle(TintedButton(color: .red, fullwidth: true))
                         }
-                        Button(action: {
-                            hideResetHelp = false
-                        }) {
-                            Text("Reset Collections")
-                        }
-                        .buttonStyle(TintedButton(color: .red, fullwidth: true))
+                        .listRowInsets(EdgeInsets())
+                        .padding(7)
                     }
+                } header: {
+                    Label("Actions", systemImage: "hammer")
                 }
             }
-            .padding()
             .navigationTitle("Pocket Poster")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
