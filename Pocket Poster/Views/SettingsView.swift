@@ -11,6 +11,9 @@ struct SettingsView: View {
     // Prefs
     @AppStorage("pbHash") var pbHash: String = ""
     
+    @State var checkingForHash: Bool = false
+    @State var hashCheckTask: Task<Void, any Error>? = nil
+    
     @State var showErrorAlert = false
     @State var errorAlertTitle: String?
     @State var errorAlertDescr: String?
@@ -19,10 +22,26 @@ struct SettingsView: View {
         ScrollView {
             Section {
                 HStack {
+                    // Add button to run task to check until file exists from Nugget pc over AFC
                     Text("App Hash:")
                         .font(.headline)
                         .foregroundColor(.primary)
                     Spacer()
+                    Button(action: {
+                        UIApplication.shared.confirmAlert(title: "Waiting for app hash...", body: "Connect your device to Nugget and click the \"Pocket Poster Helper\" button.", confirmTitle: "Cancel", onOK: {
+                            cancelWaitForHash()
+                        }, noCancel: true)
+                        startWaitForHash()
+                    }) {
+                        Text("Detect")
+                    }
+                    .buttonStyle(TintedButton(color: .green, fullwidth: false))
+                    .onChange(of: checkingForHash) {
+                        if !checkingForHash {
+                            // hide ui
+                            UIApplication.shared.dismissAlert(animated: true)
+                        }
+                    }
                 }
                 TextField("Enter App Hash", text: $pbHash)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -91,5 +110,37 @@ struct SettingsView: View {
         } message: {
             Text(errorAlertDescr ?? "???")
         }
+    }
+    
+    func startWaitForHash() {
+        checkingForHash = true
+        hashCheckTask = Task {
+            let filePath = SymHandler.getDocumentsDirectory().appendingPathComponent("NuggetAppHash")
+            while !FileManager.default.fileExists(atPath: filePath.path()) {
+                try? await Task.sleep(nanoseconds: 500_000_000) // Sleep 0.5s
+                try Task.checkCancellation()
+            }
+            
+            do {
+                let contents = try String(contentsOf: filePath)
+                try? FileManager.default.removeItem(at: filePath)
+                await MainActor.run {
+                    pbHash = contents
+                }
+            } catch {
+                print(error.localizedDescription)
+            }
+
+            await MainActor.run {
+                checkingForHash = false
+                hashCheckTask = nil
+            }
+        }
+    }
+    
+    func cancelWaitForHash() {
+        hashCheckTask?.cancel()
+        hashCheckTask = nil
+        checkingForHash = false
     }
 }
