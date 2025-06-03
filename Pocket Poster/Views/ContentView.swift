@@ -21,7 +21,7 @@ struct ContentView: View {
     private let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
     
     @State var showTendiesImporter: Bool = false
-    var selectedTendies: Binding<[URL]?>
+    var selectedTendies: Binding<[URL]>
     
     @State var showErrorAlert = false
     @State var showSuccessAlert = false
@@ -47,24 +47,24 @@ struct ContentView: View {
                     .buttonStyle(TintedButton(color: .green, fullwidth: true))
                     .padding(10)
                     
-                    if let selectedTendies = selectedTendies.wrappedValue, !selectedTendies.isEmpty {
+                    if !selectedTendies.wrappedValue.isEmpty {
                         HStack {
                             Text("Selected Tendies")
                                 .font(.headline)
                             Spacer()
                         }
                         List {
-                            ForEach(selectedTendies, id: \.self) { tendie in
+                            ForEach(selectedTendies.wrappedValue, id: \.self) { tendie in
                                 Text(tendie.deletingPathExtension().lastPathComponent)
                             }
                             .onDelete(perform: delete)
                         }
-                        .frame(height: CGFloat((selectedTendies.count * 65) + (selectedTendies.count < 3 ? 100 : 0)), alignment: .top)
+                        .frame(height: CGFloat((selectedTendies.wrappedValue.count * 65) + (selectedTendies.wrappedValue.count < 3 ? 100 : 0)), alignment: .top)
                     }
                 }
                 
                 Section {
-                    if selectedTendies.wrappedValue != nil && !selectedTendies.wrappedValue!.isEmpty {
+                    if !selectedTendies.wrappedValue.isEmpty {
                         if pbHash == "" {
                             Text("Enter your PosterBoard app hash in Settings.")
                         } else {
@@ -74,8 +74,8 @@ struct ContentView: View {
                                 
 //                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                                     do {
-                                        try PosterBoardManager.applyTendies(selectedTendies.wrappedValue!, appHash: pbHash)
-                                        selectedTendies.wrappedValue = nil
+                                        try PosterBoardManager.applyTendies(selectedTendies.wrappedValue, appHash: pbHash)
+                                        selectedTendies.wrappedValue.removeAll()
                                         try? FileManager.default.removeItem(at: PosterBoardManager.getTendiesStoreURL())
                                         Haptic.shared.notify(.success)
 //                                        UIApplication.shared.dismissAlert(animated: true)
@@ -112,11 +112,7 @@ struct ContentView: View {
         .fileImporter(isPresented: $showTendiesImporter, allowedContentTypes: [UTType(filenameExtension: "tendies", conformingTo: .data)!], allowsMultipleSelection: true, onCompletion: { result in
             switch result {
             case .success(let url):
-                if selectedTendies.wrappedValue == nil {
-                    selectedTendies.wrappedValue = url
-                } else {
-                    selectedTendies.wrappedValue?.append(contentsOf: url)
-                }
+                selectedTendies.wrappedValue.append(contentsOf: url)
             case .failure(let error):
                 lastError = error.localizedDescription
                 showErrorAlert.toggle()
@@ -137,12 +133,10 @@ struct ContentView: View {
     }
     
     func delete(at offsets: IndexSet) {
-        if selectedTendies.wrappedValue != nil {
-            selectedTendies.wrappedValue?.remove(atOffsets: offsets)
-        }
+        selectedTendies.wrappedValue.remove(atOffsets: offsets)
     }
     
-    init(selectedTendies: Binding<[URL]?>) {
+    init(selectedTendies: Binding<[URL]>) {
         self.selectedTendies = selectedTendies
         // Fix file picker
         let fixMethod = class_getInstanceMethod(UIDocumentPickerViewController.self, #selector(UIDocumentPickerViewController.fix_init(forOpeningContentTypes:asCopy:)))!

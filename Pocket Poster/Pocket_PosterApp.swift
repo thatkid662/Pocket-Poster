@@ -13,7 +13,7 @@ struct Pocket_PosterApp: App {
     @AppStorage("finishedTutorial") var finishedTutorial: Bool = false
     @AppStorage("pbHash") var pbHash: String = ""
     
-    @State var selectedTendies: [URL]? = nil
+    @State var selectedTendies: [URL] = []
     
     @State var downloadURL: String? = nil
     @State var showDownloadAlert = false
@@ -51,11 +51,7 @@ struct Pocket_PosterApp: App {
                     // copy it over to the KFC bucket
                     do {
                         let newURL = try DownloadManager.copyTendies(from: url)
-                        if selectedTendies == nil {
-                            selectedTendies = [newURL]
-                        } else {
-                            selectedTendies?.append(newURL)
-                        }
+                        selectedTendies.append(newURL)
                         Haptic.shared.notify(.success)
                         UIApplication.shared.alert(title: "Successfully imported \(url.lastPathComponent)", body: "")
                     } catch {
@@ -74,11 +70,7 @@ struct Pocket_PosterApp: App {
         Task {
             do {
                 let newURL = try await DownloadManager.downloadFromURL(string: downloadURL!)
-                if selectedTendies == nil {
-                    selectedTendies = [newURL]
-                } else {
-                    selectedTendies?.append(newURL)
-                }
+                selectedTendies.append(newURL)
                 Haptic.shared.notify(.success)
                 UIApplication.shared.dismissAlert(animated: true)
             } catch {
