@@ -100,7 +100,30 @@ struct SettingsView: View {
                 Label("Links", systemImage: "link")
             }
             
-            // TODO: Credits
+            // MARK: Socials
+            Section {
+                Link(destination: URL(string: "https://github.com/leminlimez/Pocket-Poster")!) {
+                    Label("View on GitHub", image: "github.fill")
+                }
+                Link(destination: URL(string: "https://discord.gg/MN8JgqSAqT")!) {
+                    Label("Join the Discord", image: "discord.fill")
+                }
+                Link(destination: URL(string: "https://ko-fi.com/leminlimez")!) {
+                    Label("Support on Ko-Fi", image: "ko-fi")
+                }
+            } header: {
+                Label("Socials", systemImage: "globe")
+            }
+            
+            // MARK: Credits
+            Section {
+                LinkCell(imageName: "leminlimez", url: "https://github.com/leminlimez", title: "LeminLimez", contribution: NSLocalizedString("Main Developer", comment: "leminlimez's contribution"), circle: true)
+                LinkCell(imageName: "sky", url: "https://bsky.app/profile/did:plc:xykfeb7ieeo335g3aly6vev4", title: "dootskyre", contribution: "Shortcut Creator", circle: true)
+                LinkCell(imageName: "Nathan", url: "https://github.com/verygenericname", title: "Nathan", contribution: "Exploit", circle: true)
+                LinkCell(imageName: "duy", url: "https://github.com/khanhduytran0", title: "DuyKhanhTran", contribution: "Exploit", circle: true)
+            } header: {
+                Label("Credits", systemImage: "wrench.and.screwdriver")
+            }
         }
         .padding()
         .alert(errorAlertTitle ?? "Error", isPresented: $showErrorAlert) {
