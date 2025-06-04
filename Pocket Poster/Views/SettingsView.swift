@@ -91,9 +91,9 @@ struct SettingsView: View {
                         Label("Create Additional Fallback Method", systemImage: "appclip")
                     }
                 }
-                if let wpURL = URL(string: PosterBoardManager.WallpapersURL) {
-                    Link(destination: wpURL) {
-                        Label("Find Wallpapers", systemImage: "safari")
+                if let nURL = URL(string: "https://github.com/leminlimez/Nugget") {
+                    Link(destination: nURL) {
+                        Label("Nugget GitHub", image: "github.fill")
                     }
                 }
             } header: {
