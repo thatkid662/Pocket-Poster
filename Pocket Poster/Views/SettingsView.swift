@@ -118,10 +118,10 @@ struct SettingsView: View {
             // MARK: Credits
             Section {
                 LinkCell(imageName: "leminlimez", url: "https://github.com/leminlimez", title: "LeminLimez", contribution: NSLocalizedString("Main Developer", comment: "leminlimez's contribution"), circle: true)
-                LinkCell(imageName: "sky", url: "https://bsky.app/profile/did:plc:xykfeb7ieeo335g3aly6vev4", title: "dootskyre", contribution: "Shortcut Creator", circle: true)
                 LinkCell(imageName: "serstars", url: "https://github.com/SerStars", title: "SerStars", contribution: "Website Designer", circle: true)
                 LinkCell(imageName: "Nathan", url: "https://github.com/verygenericname", title: "Nathan", contribution: "Exploit", circle: true)
                 LinkCell(imageName: "duy", url: "https://github.com/khanhduytran0", title: "DuyKhanhTran", contribution: "Exploit", circle: true)
+                LinkCell(imageName: "sky", url: "https://bsky.app/profile/did:plc:xykfeb7ieeo335g3aly6vev4", title: "dootskyre", contribution: "Fallback Shortcut Creator", circle: true)
             } header: {
                 Label("Credits", systemImage: "wrench.and.screwdriver")
             }
