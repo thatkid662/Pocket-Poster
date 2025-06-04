@@ -72,6 +72,7 @@ struct ContentView: View {
                                         do {
                                             try PosterBoardManager.applyTendies(selectedTendies.wrappedValue, appHash: pbHash)
                                             selectedTendies.wrappedValue.removeAll()
+                                            SymHandler.cleanup() // just to be extra sure
                                             try? FileManager.default.removeItem(at: PosterBoardManager.getTendiesStoreURL())
                                             Haptic.shared.notify(.success)
                                             UIApplication.shared.dismissAlert(animated: false)
@@ -84,6 +85,7 @@ struct ContentView: View {
                                             }, noCancel: true)
                                         } catch {
                                             Haptic.shared.notify(.error)
+                                            SymHandler.cleanup()
                                             UIApplication.shared.dismissAlert(animated: false)
                                             UIApplication.shared.alert(body: error.localizedDescription)
                                         }
