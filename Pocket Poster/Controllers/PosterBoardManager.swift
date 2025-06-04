@@ -13,6 +13,8 @@ class PosterBoardManager {
     static let ShortcutURL = "https://www.icloud.com/shortcuts/a28d2c02ca11453cb5b8f91c12cfa692"
     static let WallpapersURL = "https://cowabun.ga/wallpapers"
     
+    static let MaxTendies = 10
+    
     static func getTendiesStoreURL() -> URL {
         let tendiesStoreURL = SymHandler.getDocumentsDirectory().appendingPathComponent("KFC Bucket", conformingTo: .directory)
         // create it if it doesn't exist

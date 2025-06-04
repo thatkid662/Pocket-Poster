@@ -40,23 +40,31 @@ struct Pocket_PosterApp: App {
             .onOpenURL(perform: { url in
                 // Download URL
                 if url.absoluteString.starts(with: "pocketposter://download") {
-                    downloadURL = url.absoluteString.replacingOccurrences(of: "pocketposter://download?url=", with: "")
-                    showDownloadAlert = true
+                    if selectedTendies.count >= PosterBoardManager.MaxTendies {
+                        UIApplication.shared.alert(title: "Max Tendies Reached", body: "You can only apply \(PosterBoardManager.MaxTendies) descriptors.")
+                    } else {
+                        downloadURL = url.absoluteString.replacingOccurrences(of: "pocketposter://download?url=", with: "")
+                        showDownloadAlert = true
+                    }
                 }
                 // App Hash URL
                 else if url.absoluteString.starts(with: "pocketposter://app-hash?uuid=") {
                     pbHash = url.absoluteString.replacingOccurrences(of: "pocketposter://app-hash?uuid=", with: "")
                 }
                 else if url.pathExtension == "tendies" {
-                    // copy it over to the KFC bucket
-                    do {
-                        let newURL = try DownloadManager.copyTendies(from: url)
-                        selectedTendies.append(newURL)
-                        Haptic.shared.notify(.success)
-                        UIApplication.shared.alert(title: "Successfully imported \(url.lastPathComponent)", body: "")
-                    } catch {
-                        Haptic.shared.notify(.error)
-                        UIApplication.shared.alert(title: "Failed to import tendies", body: error.localizedDescription)
+                    if selectedTendies.count >= PosterBoardManager.MaxTendies {
+                        UIApplication.shared.alert(title: "Max Tendies Reached", body: "You can only apply \(PosterBoardManager.MaxTendies) descriptors.")
+                    } else {
+                        // copy it over to the KFC bucket
+                        do {
+                            let newURL = try DownloadManager.copyTendies(from: url)
+                            selectedTendies.append(newURL)
+                            Haptic.shared.notify(.success)
+                            UIApplication.shared.alert(title: "Successfully imported \(url.lastPathComponent)", body: "")
+                        } catch {
+                            Haptic.shared.notify(.error)
+                            UIApplication.shared.alert(title: "Failed to import tendies", body: error.localizedDescription)
+                        }
                     }
                 }
             })

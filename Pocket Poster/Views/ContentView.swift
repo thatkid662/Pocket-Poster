@@ -130,7 +130,11 @@ struct ContentView: View {
         .fileImporter(isPresented: $showTendiesImporter, allowedContentTypes: [UTType(filenameExtension: "tendies", conformingTo: .data)!], allowsMultipleSelection: true, onCompletion: { result in
             switch result {
             case .success(let url):
-                selectedTendies.wrappedValue.append(contentsOf: url)
+                if selectedTendies.wrappedValue.count + url.count > PosterBoardManager.MaxTendies {
+                    UIApplication.shared.alert(title: "Max Tendies Reached", body: "You can only apply \(PosterBoardManager.MaxTendies) descriptors.")
+                } else {
+                    selectedTendies.wrappedValue.append(contentsOf: url)
+                }
             case .failure(let error):
                 lastError = error.localizedDescription
                 showErrorAlert.toggle()
