@@ -126,7 +126,6 @@ struct SettingsView: View {
                 Label("Credits", systemImage: "wrench.and.screwdriver")
             }
         }
-        .padding()
         .alert(errorAlertTitle ?? "Error", isPresented: $showErrorAlert) {
             Button("OK") {}
         } message: {
@@ -137,7 +136,7 @@ struct SettingsView: View {
     func startWaitForHash() {
         checkingForHash = true
         hashCheckTask = Task {
-            let filePath = SymHandler.getDocumentsDirectory().appendingPathComponent("NuggetAppHash")
+            let filePath = SymHandler.getLCDocumentsDirectory().appendingPathComponent("NuggetAppHash")
             while !FileManager.default.fileExists(atPath: filePath.path()) {
                 try? await Task.sleep(nanoseconds: 500_000_000) // Sleep 0.5s
                 try Task.checkCancellation()

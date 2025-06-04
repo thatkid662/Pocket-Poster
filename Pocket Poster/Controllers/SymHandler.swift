@@ -15,13 +15,16 @@ class SymHandler {
         return documentsDirectory
     }
     
-    private static func getSymlinkURL() -> URL {
+    static func getLCDocumentsDirectory() -> URL {
         let lcPath = ProcessInfo.processInfo.environment["LC_HOME_PATH"]
-        var docsDir = getDocumentsDirectory()
         if let lcPath = lcPath {
-            docsDir = URL(fileURLWithPath: "\(lcPath)/Documents")
+            return URL(fileURLWithPath: "\(lcPath)/Documents")
         }
-        return docsDir.appendingPathComponent(".Trash", conformingTo: .symbolicLink)
+        return getDocumentsDirectory()
+    }
+    
+    private static func getSymlinkURL() -> URL {
+        return getLCDocumentsDirectory().appendingPathComponent(".Trash", conformingTo: .symbolicLink)
     }
     
     // MARK: Symlink Creation
