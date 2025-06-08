@@ -40,7 +40,10 @@ struct Pocket_PosterApp: App {
             .onOpenURL(perform: { url in
                 // Download URL
                 if url.absoluteString.starts(with: "pocketposter://download") {
-                    if selectedTendies.count >= PosterBoardManager.MaxTendies {
+                    // prohibit to only tendies files
+                    if !url.absoluteString.hasSuffix(".tendies") {
+                        UIApplication.shared.alert(body: "Only .tendies files can be downloaded!")
+                    } else if selectedTendies.count >= PosterBoardManager.MaxTendies {
                         UIApplication.shared.alert(title: "Max Tendies Reached", body: "You can only apply \(PosterBoardManager.MaxTendies) descriptors.")
                     } else {
                         downloadURL = url.absoluteString.replacingOccurrences(of: "pocketposter://download?url=", with: "")
