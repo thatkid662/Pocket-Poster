@@ -33,5 +33,5 @@ jobs:
           sh ipabuild.sh
       - uses: actions/upload-artifact@v4
         with:
-          path: "Pocket Poster.ipa"
+          path: "/Users/runner/work/Pocket-Poster/Pocket-Poster/build/Pocket Poster.ipa"
         
