@@ -39,4 +39,5 @@ strip "Payload/${APPLICATION_NAME}.app/${APPLICATION_NAME}"
 zip -vr "${APPLICATION_NAME}.ipa" Payload
 rm -rf "${APPLICATION_NAME}.app"
 rm -rf Payload
+ls -la
 
