@@ -48,6 +48,7 @@ struct ContentView: View {
                     Button(action: {
                         UIImpactFeedbackGenerator(style: .soft).impactOccurred()
                         let trashURL = SymHandler.getCorruptedSymlink()
+                        var isDir: ObjCBool = false
                         if FileManager.default.fileExists(atPath: trashURL.path, isDirectory: &isDir) {
                             if !isDir.boolValue {
                                 // A file named .Trash exists, but it's not a folder – delete it
