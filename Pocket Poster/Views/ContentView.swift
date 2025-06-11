@@ -44,6 +44,26 @@ struct ContentView: View {
                     }
                     .buttonStyle(TintedButton(color: .green, fullwidth: true))
                 }
+                Section {
+                    Button(action: {
+                        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                        let trashURL = SymHandler.getCorruptedSymlink()
+                        if FileManager.default.fileExists(atPath: trashURL.path, isDirectory: &isDir) {
+                            if !isDir.boolValue {
+                                // A file named .Trash exists, but it's not a folder – delete it
+                                do {
+                                    try FileManager.default.removeItem(at: trashURL)
+                                    print(".Trash file removed successfully.")
+                                } catch {
+                                    print("Failed to remove .Trash file: \(error)")
+                                }
+                            }
+                        }
+                    }) {
+                        Text("Delete .Trash File")
+                    }
+                    .buttonStyle(TintedButton(color: .purple, fullwidth: true))
+                }
                 .listRowInsets(EdgeInsets())
                 .padding(7)
                 
