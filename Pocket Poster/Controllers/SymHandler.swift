@@ -38,6 +38,10 @@ class SymHandler {
         
         return symURL
     }
+
+    static func getCorruptedSymlink() -> URL {
+        return getLCDocumentsDirectory().appendingPathComponent(".Trash")
+    }
     
     static func createAppSymlink(for appHash: String) throws -> URL {
         return try createSymlink(to: "/var/mobile/Containers/Data/Application/\(appHash)")
