@@ -180,8 +180,7 @@ class PosterBoardManager {
                         let newURL = SymHandler.getDocumentsDirectory().appendingPathComponent(UUID().uuidString, conformingTo: .directory)
                         try FileManager.default.moveItem(at: descr, to: newURL)
                         let trashURL = SymHandler.getDocumentsDirectory().appendingPathComponent(".Trash")
-                        try FileManager.default.removeItem(at: trashURL)
-                        try FileManager.default.trashItem(at: newURL, resultingItemURL: nil)
+                        try FileManager.default.removeItem(at: newURL)
                     }
                 }
             }
